@@ -1,16 +1,18 @@
 import { defineConfig } from 'vite'
 import vue from '@vitejs/plugin-vue'
+import path from 'path'
 
-// https://vitejs.dev/config/
+// https://cn.vitejs.dev/config.html
+// https://blog.csdn.net/y227766/article/details/126426546
 export default defineConfig({
-  plugins: [vue()],
-  build: {
-		outDir: "muk-ui", //输出文件名称
+	plugins: [vue()],
+	build: {
+		outDir: "vue3-code-diff-merge", //输出文件名称
 		lib: {
-      //指定组件编译入口文件
-			entry: path.resolve(__dirname, "./src/components/muk-ui/index.js"),
-			name: "muk-ui",
-			fileName: "muk-ui",
+			//指定组件编译入口文件
+			entry: path.resolve(__dirname, "./src/components/index.ts"),
+			name: "diff",
+			fileName: "vue3-code-diff-merge",
 		}, //库编译模式配置
 		rollupOptions: {
 			// 确保外部化处理那些你不想打包进库的依赖

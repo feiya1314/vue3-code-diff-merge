@@ -9,6 +9,9 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "diff": "^5.1.0",
+    "diff2html": "^3.4.22",
+    "highlight.js": "^11.6.0",
     "vue": "^3.2.37"
   },
   "devDependencies": {
