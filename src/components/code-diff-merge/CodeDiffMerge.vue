@@ -1,5 +1,5 @@
 <template>
-    <button  @click="diffText('你好 abc')">code diff</button>
+    <button  @click="diffText('abc \n abd\nbcd\nacd\n123')">code diff</button>
     
  </template>
 
@@ -14,7 +14,7 @@ import { getDiff } from './code-diff-merge'
 
 
 const diffText = (data:string)=>{
-    getDiff("abc",data)
+    getDiff("abc \n abc\nbbd\n123",data)
 }
 
 </script>
