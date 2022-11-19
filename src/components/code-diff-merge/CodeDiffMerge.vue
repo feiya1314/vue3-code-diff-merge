@@ -1,7 +1,7 @@
 <template>
-    <button  @click="diffText('abc \n abd\nbcd\nacd\n123')">code diff</button>
-    
- </template>
+    <button @click="diffText('abc \n abd\nbcd\nacd\n123')">code diff</button>
+
+</template>
 
 <script setup lang="ts">
 // This starter template is using Vue 3 <script setup> SFCs
@@ -11,10 +11,13 @@
 // https://juejin.cn/post/6890545920883032071
 
 import { getDiff } from './code-diff-merge'
+import { TextLine } from './text-line'
 
+const diffText = (data: string) => {
+    let result: Array<TextLine[]> = getDiff("abc \n abc\nbbd\n123", data);
+    console.log(result);
+    
 
-const diffText = (data:string)=>{
-    getDiff("abc \n abc\nbbd\n123",data)
 }
 
 </script>

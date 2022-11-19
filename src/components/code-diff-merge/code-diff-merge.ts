@@ -63,8 +63,14 @@ export function getDiff(oldStr: string, newStr: string,): Array<TextLine[]> {
         }
     })
 
-    console.log(result)
     return result;
 }
 
-export default getDiff
+
+/**
+ * 讲diff出的结果中的空行压实，多余的空行删除
+ * @param result diff的处理后的结果
+ */
+export function compactEmptyLines(result: Array<TextLine[]>) {
+
+}
