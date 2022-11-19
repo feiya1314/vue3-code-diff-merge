@@ -10,14 +10,15 @@
 // https://juejin.cn/post/7029339447078420493
 // https://juejin.cn/post/6890545920883032071
 
-import { getDiff } from './code-diff-merge'
+import { getDiff, compactEmptyLines } from './code-diff-merge'
 import { TextLine } from './text-line'
 
 const diffText = (data: string) => {
     let result: Array<TextLine[]> = getDiff("abc \n abc\nbbd\n123", data);
     console.log(result);
-    
-    
+
+    let compactResult = compactEmptyLines(result);
+    console.log(compactResult);
 }
 
 </script>
