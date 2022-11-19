@@ -18,15 +18,52 @@ export function getDiff(oldStr: string, newStr: string,): Array<TextLine[]> {
     result.push(oldLines);
     result.push(newLines);
 
-    changes.forEach(e=>{
-        
+    let index = 0;
+    changes.forEach(change => {
+        if (!change || !change.count || change.count <= 0) {
+            return
+        }
+
+        // 新增的元素写入新的行，旧的对应的位置插入空行
+        if (change.added) {
+            let changedLines: Array<string> = change.value.split("\n");
+            for (let i: number = 0; i < change.count; i++) {
+                index++;
+                let line = new TextLine(changedLines[i], true, index);
+                line.add = true;
+                newLines.push(line);
+
+                let emptyLine = new TextLine('', true, index);
+                oldLines.push(emptyLine)
+            }
+            return;
+        }
+
+        // 删除的元素写入旧的行，新的对应的位置插入空行
+        if (change.removed) {
+            let changedLines: Array<string> = change.value.split("\n");
+            for (let i = 0; i < change.count; i++) {
+                index++;
+                let line = new TextLine(changedLines[i], true, index);
+                line.removed = true;
+                oldLines.push(line);
+
+                let emptyLine = new TextLine('', true, index);
+                newLines.push(emptyLine)
+            }
+            return;
+        }
+
+        let changedLines: Array<string> = change.value.split("\n");
+        for (let i = 0; i < change.count; i++) {
+            index++;
+            let line = new TextLine(changedLines[i], true, index);
+            oldLines.push(line);
+            newLines.push(line);
+        }
     })
 
-    var line = new TextLine('sds', true, 1);
-    line.add = true;
-    oldLines.push(line);
-    console.log(oldLines);
-
+    console.log(result)
     return result;
 }
 
