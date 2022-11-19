@@ -72,5 +72,50 @@ export function getDiff(oldStr: string, newStr: string,): Array<TextLine[]> {
  * @param result diff的处理后的结果
  */
 export function compactEmptyLines(result: Array<TextLine[]>) {
+    if (!result || result.length != 2) {
+        return;
+    }
 
+    let oldLines = result[0];
+    let newLines = result[1];
+
+    let finalFlag = new TextLine('', false, -1);
+    oldLines.push(finalFlag);
+    newLines.push(finalFlag);
+
+    let newCompcat: TextLine[] = new Array();
+    let oldCompcat: TextLine[] = new Array();
+
+    let start = 0;
+
+    for (let i = 0; i < oldLines.length; i++) {
+        if (oldLines[i].add || oldLines[i].removed) {
+            continue;
+        }
+
+        // 压缩未变换的行之间的改变的行，主要是去掉多余的空行 
+        compact(start, i - 1, newCompcat, oldCompcat, newLines, oldLines);
+        // 处理为变换的行，移动指针
+        let j;
+        for (j = i; j < oldLines.length; j++) {
+            if (oldLines[j].add || oldLines[j].removed) {
+                start = j;
+                break;
+            }
+            newCompcat.push(newLines[j]);
+            oldCompcat.push(oldLines[j]);
+        }
+        i = j - 1;
+    }
+}
+
+
+function compact(start: number, end: number, newCompcat: TextLine[], oldCompcat: TextLine[], newLines: TextLine[], oldLines: TextLine[]) {
+    if (end < start) {
+        return;
+    }
+
+    for (let i = start; i <= end; i++) {
+
+    }
 }

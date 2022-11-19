@@ -17,7 +17,7 @@ const diffText = (data: string) => {
     let result: Array<TextLine[]> = getDiff("abc \n abc\nbbd\n123", data);
     console.log(result);
     
-
+    
 }
 
 </script>
