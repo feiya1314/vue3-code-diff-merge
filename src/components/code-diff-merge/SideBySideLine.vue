@@ -1,5 +1,5 @@
 <template>
-   <dev>{{linesPairs}}</dev> 
+    <dev>{{ linessPairs }}</dev>
 </template>
 
 <script setup lang="ts">
@@ -12,6 +12,20 @@ interface Props {
 
 // https://cn.vuejs.org/guide/typescript/composition-api.html#typing-component-props
 const props = defineProps<Props>()
-const linesPairs = props.linesPairs;
+const linessPairs = props.linesPairs;
 
 </script>
+
+<!-- 
+<script lang="ts">
+import { defineComponent, ref } from 'vue'
+import son from './components/son.vue'
+
+export default defineComponent({
+    components: { son },
+    setup () {
+      const parentValue = ref('父组件传给子组件的值')
+      return { parentValue }
+    }
+  })
+  </script> -->
