@@ -1,6 +1,9 @@
 import { diffLines, Change } from 'diff'
 import { TextLine } from './text-line'
+import { ContrastLinesPair } from './contrast-lines-pair'
 import { LineStatus } from './line-status-enum'
+
+let EMPTY_LINE = new TextLine(null, false, null, LineStatus.EMPTY);
 
 export function getDiff(oldStr: string, newStr: string,): Array<TextLine[]> {
     let changes: Change[] = diffLines(oldStr, newStr);
@@ -33,8 +36,7 @@ export function getDiff(oldStr: string, newStr: string,): Array<TextLine[]> {
                 let line = new TextLine(changedLines[i], true, index, LineStatus.ADD);
                 newLines.push(line);
 
-                let emptyLine = new TextLine(null, true, -1, LineStatus.EMPTY);
-                oldLines.push(emptyLine)
+                oldLines.push(EMPTY_LINE)
             }
             return;
         }
@@ -47,8 +49,7 @@ export function getDiff(oldStr: string, newStr: string,): Array<TextLine[]> {
                 let line = new TextLine(changedLines[i], true, index, LineStatus.REMOVED);
                 oldLines.push(line);
 
-                let emptyLine = new TextLine(null, true, -1, LineStatus.EMPTY);
-                newLines.push(emptyLine)
+                newLines.push(EMPTY_LINE)
             }
             return;
         }
@@ -67,51 +68,78 @@ export function getDiff(oldStr: string, newStr: string,): Array<TextLine[]> {
 
 
 /**
- * 讲diff出的结果中的空行压实，多余的空行删除
+ * 将diff出的结果中的空行压实，多余的空行删除
  * @param result diff的处理后的结果
  */
-export function compactEmptyLines(result: Array<TextLine[]>) {
+export function compactEmptyLines(result: Array<TextLine[]>): ContrastLinesPair[] {
+    var compactResult: ContrastLinesPair[] = new Array();
     if (!result || result.length != 2) {
-        return result;
+        return compactResult;
     }
 
     let oldLines = result[0];
     let newLines = result[1];
 
-    var result: Array<TextLine[]> = new Array();
+    let newCompcatLines: TextLine[] = new Array();
+    let oldCompcatLines: TextLine[] = new Array();
 
-    let newCompcat: TextLine[] = new Array();
-    let oldCompcat: TextLine[] = new Array();
-
-    result.push(oldCompcat);
-    result.push(newCompcat);
+    let oldIndex = 1;
+    let newIndex = 1;
 
     for (let i = 0; i < oldLines.length; i++) {
         if (oldLines[i].status == LineStatus.REMOVED) {
-            oldCompcat.push(oldLines[i]);
+            oldLines[i].index = oldIndex++;
+            oldCompcatLines.push(oldLines[i]);
         }
 
         if (newLines[i].status == LineStatus.ADD) {
-            newCompcat.push(newLines[i]);
+            newLines[i].index = newIndex++;
+            newCompcatLines.push(newLines[i]);
         }
 
-        if (oldLines[i].status == LineStatus.NORMAL && newLines[i].status == LineStatus.NORMAL) {
-            if (oldCompcat.length < newCompcat.length) {
-                let emptyLineNum = newCompcat.length - oldCompcat.length
-                for (let i = 0; i < emptyLineNum; i++) {
-                    oldCompcat.push(new TextLine(null, true, -1, LineStatus.EMPTY));
-                }
+        if ((oldLines[i].status == LineStatus.NORMAL && newLines[i].status == LineStatus.NORMAL)) {
+            alignLinesAndPush(oldCompcatLines, newCompcatLines, compactResult);
+
+            // 连续的相同的行为一组
+            let tempNewLines: TextLine[] = new Array();
+            let tempOldLines: TextLine[] = new Array();
+
+            while (i < oldLines.length && oldLines[i].status == LineStatus.NORMAL && newLines[i].status == LineStatus.NORMAL) {
+                oldLines[i].index = oldIndex++;
+                tempOldLines.push(oldLines[i]);
+
+                newLines[i].index = newIndex++;
+                tempNewLines.push(newLines[i]);
+
+                i++;
             }
-            if (oldCompcat.length > newCompcat.length) {
-                let emptyLineNum = oldCompcat.length - newCompcat.length
-                for (let i = 0; i < emptyLineNum; i++) {
-                    newCompcat.push(new TextLine(null, true, -1, LineStatus.EMPTY));
-                }
-            }
-            oldCompcat.push(oldLines[i]);
-            newCompcat.push(newLines[i]);
+
+            compactResult.push(new ContrastLinesPair(tempOldLines, tempNewLines));
+
+            newCompcatLines = new Array();
+            oldCompcatLines = new Array();
         }
     }
 
-    return result;
+    alignLinesAndPush(oldCompcatLines, newCompcatLines, compactResult);
+
+    return compactResult;
+}
+
+function alignLinesAndPush(oldCompcatLines: TextLine[], newCompcatLines: TextLine[], compactResult: ContrastLinesPair[]) {
+    if (oldCompcatLines.length < newCompcatLines.length) {
+        let emptyLineNum = newCompcatLines.length - oldCompcatLines.length
+        for (let i = 0; i < emptyLineNum; i++) {
+            oldCompcatLines.push(EMPTY_LINE);
+        }
+    }
+    if (oldCompcatLines.length > newCompcatLines.length) {
+        let emptyLineNum = oldCompcatLines.length - newCompcatLines.length
+        for (let i = 0; i < emptyLineNum; i++) {
+            newCompcatLines.push(EMPTY_LINE);
+        }
+    }
+    if (oldCompcatLines.length > 0 && newCompcatLines.length > 0) {
+        compactResult.push(new ContrastLinesPair(oldCompcatLines, newCompcatLines));
+    }
 }

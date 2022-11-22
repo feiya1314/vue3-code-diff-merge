@@ -1,11 +1,11 @@
 <template>
-    <button @click="doDiffText('abc \n abd\nbcd\nacd\n123')">code diff</button>
+  <button @click="doDiffText('abc \n abd\nbcd\nacd\n123')">code diff</button>
 
-    <div>
-        <span>{{ diffText }}</span>
-    </div>
+  <div>
+    <span>{{ diffText }}</span>
+  </div>
 
-    <SideBySideLine :linesPairs="linesPairs"></SideBySideLine>
+  <SideBySideLine :linesPairs="linesPairs"></SideBySideLine>
 </template>
 
 <script setup lang="ts">
@@ -32,18 +32,17 @@ import { ref, reactive, toRefs } from "vue";
 const diffText = ref('');
 const linesPairs: ContrastLinesPair[] = reactive(new Array<ContrastLinesPair>());
 const doDiffText = (data: string) => {
-    let result: Array<TextLine[]> = getDiff("abc \n abc\nbbd\n123", data);
-    console.log(result);
+  let result: Array<TextLine[]> = getDiff("abc \n abc\nbbd\n123", data);
+  console.log(result);
 
-    let compactResult = compactEmptyLines(result);
-    console.log(compactResult);
+  let compactResult = compactEmptyLines(result);
+  console.log(compactResult);
 
-    if (compactResult[0][0].value != null) {
-        diffText.value = hljs.highlightAuto(compactResult[0][0].value).value;
-    }
+  // if (compactResult[0] != null) {
+  //     diffText.value = hljs.highlightAuto(compactResult[0][0].value).value;
+  // }
 
-    let pair = new ContrastLinesPair(compactResult[0], compactResult[1]);
-    linesPairs.push(pair);
+  linesPairs.push(compactResult[0]);
 }
 
 </script>
