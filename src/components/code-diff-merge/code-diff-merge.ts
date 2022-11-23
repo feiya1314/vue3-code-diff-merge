@@ -8,7 +8,7 @@ let EMPTY_LINE = new TextLine(null, false, null, LineStatus.EMPTY);
 export function getDiff(oldStr: string, newStr: string,): Array<TextLine[]> {
     let changes: Change[] = diffLines(oldStr, newStr);
     console.log(changes)
-    console.log(changes.length)
+    // console.log(changes.length)
 
     var result: Array<TextLine[]> = new Array();
 
@@ -22,7 +22,6 @@ export function getDiff(oldStr: string, newStr: string,): Array<TextLine[]> {
     result.push(oldLines);
     result.push(newLines);
 
-    let index = 0;
     changes.forEach(change => {
         if (!change || !change.count || change.count <= 0) {
             return
@@ -32,10 +31,7 @@ export function getDiff(oldStr: string, newStr: string,): Array<TextLine[]> {
         if (change.added) {
             let changedLines: Array<string> = change.value.split("\n");
             for (let i: number = 0; i < change.count; i++) {
-                index++;
-                let line = new TextLine(changedLines[i], true, index, LineStatus.ADD);
-                newLines.push(line);
-
+                newLines.push(new TextLine(changedLines[i], true, null, LineStatus.ADD));
                 oldLines.push(EMPTY_LINE)
             }
             return;
@@ -45,10 +41,7 @@ export function getDiff(oldStr: string, newStr: string,): Array<TextLine[]> {
         if (change.removed) {
             let changedLines: Array<string> = change.value.split("\n");
             for (let i = 0; i < change.count; i++) {
-                index++;
-                let line = new TextLine(changedLines[i], true, index, LineStatus.REMOVED);
-                oldLines.push(line);
-
+                oldLines.push(new TextLine(changedLines[i], true, null, LineStatus.REMOVED));
                 newLines.push(EMPTY_LINE)
             }
             return;
@@ -56,10 +49,8 @@ export function getDiff(oldStr: string, newStr: string,): Array<TextLine[]> {
 
         let changedLines: Array<string> = change.value.split("\n");
         for (let i = 0; i < change.count; i++) {
-            index++;
-            let line = new TextLine(changedLines[i], true, index, LineStatus.NORMAL);
-            oldLines.push(line);
-            newLines.push(line);
+            oldLines.push(new TextLine(changedLines[i], true, null, LineStatus.NORMAL));
+            newLines.push(new TextLine(changedLines[i], true, null, LineStatus.NORMAL));
         }
     })
 
@@ -85,8 +76,8 @@ export function compactEmptyLines(result: Array<TextLine[]>): ContrastLinesPair[
 
     let oldIndex = 1;
     let newIndex = 1;
-
-    for (let i = 0; i < oldLines.length; i++) {
+    let linesLength = oldLines.length;
+    for (let i = 0; i < linesLength; i++) {
         if (oldLines[i].status == LineStatus.REMOVED) {
             oldLines[i].index = oldIndex++;
             oldCompcatLines.push(oldLines[i]);
@@ -97,14 +88,14 @@ export function compactEmptyLines(result: Array<TextLine[]>): ContrastLinesPair[
             newCompcatLines.push(newLines[i]);
         }
 
-        if ((oldLines[i].status == LineStatus.NORMAL && newLines[i].status == LineStatus.NORMAL)) {
+        if (oldLines[i].status == LineStatus.NORMAL && newLines[i].status == LineStatus.NORMAL) {
             alignLinesAndPush(oldCompcatLines, newCompcatLines, compactResult);
 
             // 连续的相同的行为一组
             let tempNewLines: TextLine[] = new Array();
             let tempOldLines: TextLine[] = new Array();
 
-            while (i < oldLines.length && oldLines[i].status == LineStatus.NORMAL && newLines[i].status == LineStatus.NORMAL) {
+            while (i < linesLength && oldLines[i].status == LineStatus.NORMAL && newLines[i].status == LineStatus.NORMAL) {
                 oldLines[i].index = oldIndex++;
                 tempOldLines.push(oldLines[i]);
 
@@ -113,7 +104,9 @@ export function compactEmptyLines(result: Array<TextLine[]>): ContrastLinesPair[
 
                 i++;
             }
-
+            
+            // 这里需要把while中 i-1，因为for循环中会执行 i++,会多加一次 
+            i--;
             compactResult.push(new ContrastLinesPair(tempOldLines, tempNewLines));
 
             newCompcatLines = new Array();

@@ -41,7 +41,7 @@ const doDiffText = (data: string) => {
   // if (compactResult[0] != null) {
   //     diffText.value = hljs.highlightAuto(compactResult[0][0].value).value;
   // }
-
+  linesPairs.pop();
   linesPairs.push(compactResult[0]);
 }
 
