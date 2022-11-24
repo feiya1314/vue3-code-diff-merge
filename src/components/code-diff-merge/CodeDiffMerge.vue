@@ -1,11 +1,9 @@
 <template>
   <button @click="doDiffText('abc \n abd\nbcd\nacd\n123')">code diff</button>
 
-  <div>
-    <span>{{ diffText }}</span>
-  </div>
 
-  <SideBySideLine :linesPairs="linesPairs"></SideBySideLine>
+  <SideBySideLine :linesPair="linesPair" :numb="num"></SideBySideLine>
+
 </template>
 
 <script setup lang="ts">
@@ -29,20 +27,23 @@ import { ref, reactive, toRefs } from "vue";
 //     bar: Number
 // })
 
-const diffText = ref('');
-const linesPairs: ContrastLinesPair[] = reactive(new Array<ContrastLinesPair>());
+// const diffText = ref('');
+const linesPair: ContrastLinesPair = reactive(new ContrastLinesPair(new Array(), new Array()));
+const num = ref(0);
 const doDiffText = (data: string) => {
   let result: Array<TextLine[]> = getDiff("abc \n abc\nbbd\n123", data);
   console.log(result);
 
   let compactResult = compactEmptyLines(result);
+  if (compactResult == null || compactResult.length == 0) {
+    return;
+  }
   console.log(compactResult);
 
-  // if (compactResult[0] != null) {
-  //     diffText.value = hljs.highlightAuto(compactResult[0][0].value).value;
-  // }
-  linesPairs.pop();
-  linesPairs.push(compactResult[0]);
+  linesPair.newLines = compactResult[num.value].newLines;
+  linesPair.oldLines = compactResult[num.value].oldLines;
+  num.value = num.value + 1;
+  console.log(num.value);
 }
 
 </script>
