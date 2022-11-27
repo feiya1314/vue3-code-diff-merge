@@ -1,11 +1,66 @@
 <template>
-  <table>
-    <tr v-for="line in linesPair.oldLines">
-      <td>{{ line.value }}</td>
-      <td>{{ line.index }}</td>
-    </tr>
-  </table>
-  <span>{{ numb }}</span>
+  <tr v-for="(n, index) in groupSize">
+
+    <!-- -------------------- 右侧 文本列行号 开始------------------------>
+    <td v-if="position == 'right' && groupLines[index].status == LineStatus.ADD" class="line-num-right line-num line-add">
+      {{ groupLines[index].index }}
+      <span v-if="index == 0"> «&nbsp;</span>
+      <span v-if="index > 0"> &nbsp;&nbsp; </span>
+    </td>
+
+    <td v-if="position == 'right' && groupLines[index].status == LineStatus.EMPTY" class="line-num-right line-num line-empty" />
+
+    <td v-if="position == 'right' && groupLines[index].status == LineStatus.NORMAL" class="line-num-right line-num line-normal">
+      {{ groupLines[index].index }}
+      &nbsp;&nbsp;
+    </td>
+    <!-- -------------------- 右侧 文本列行号 结束------------------------>
+
+    <!-- -------------------- 文本列处理 开始------------------------>
+    <td v-if="groupLines[index].status == LineStatus.REMOVED" class="line-value line-del">
+      <div>
+        <span class="line-prefix">&nbsp;-&nbsp;</span>
+        <span class="line-ctn">{{ groupLines[index].value }}</span>
+      </div>
+    </td>
+
+    <td v-if="groupLines[index].status == LineStatus.ADD" class="line-value line-add">
+      <div>
+        <span class="line-prefix">&nbsp;+&nbsp;</span>
+        <span class="line-ctn">{{ groupLines[index].value }}</span>
+      </div>
+    </td>
+
+    <td v-if="groupLines[index].status == LineStatus.EMPTY" class="line-value line-empty">
+      <div>
+        <span class="line-prefix">&nbsp;&nbsp;&nbsp;</span>
+        <span class="line-ctn"><br></span>
+      </div>
+    </td>
+
+    <td v-if="groupLines[index].status == LineStatus.NORMAL" class="line-value line-normal">
+      <div>
+        <span class="line-prefix">&nbsp;&nbsp;&nbsp;</span>
+        <span class="line-ctn">{{ groupLines[index].value }}</span>
+      </div>
+    </td>
+    <!-- -------------------- 文本列处理 结束------------------------>
+
+    <!-- -------------------- 左侧 文本列行号 开始------------------------>
+    <td v-if="position == 'left' && groupLines[index].status == LineStatus.REMOVED" class="line-num-left line-num line-del">
+      <span v-if="index == 0"> &nbsp;» </span>
+      <span v-if="index > 0"> &nbsp;&nbsp; </span>
+      {{ groupLines[index].index }}
+    </td>
+
+    <td v-if="position == 'left' && groupLines[index].status == LineStatus.EMPTY" class="line-num-left line-num line-empty" />
+
+    <td v-if="position == 'left' && groupLines[index].status == LineStatus.NORMAL" class="line-num-left line-num line-normal">
+      &nbsp;&nbsp;
+      {{ groupLines[index].index }}
+    </td>
+    <!-- -------------------- 左侧 文本列行号 结束------------------------>
+  </tr>
   <!-- <span>{{cnumb}}</span> -->
 </template>
 
@@ -13,20 +68,33 @@
 import { TextLine } from './text-line'
 import { ContrastLinesPair } from './contrast-lines-pair'
 import { ref, reactive, toRefs, computed } from "vue";
+import { LineStatus } from './line-status-enum'
 // 定义外部参数，其他组件使用该组件时可以传的参数
 
 
 // https://cn.vuejs.org/guide/typescript/composition-api.html#typing-component-props
 const props = defineProps({
-  linesPair: {
-    type: ContrastLinesPair,
+  groupLines: {
+    type: Array<TextLine>,
     required: true
   },
-  numb: {
+  groupSize: {
     type: Number,
     required: true
   },
+  groupIndex: {
+    type: Number,
+    required: true
+  },
+  position: {
+    type: String,
+    required: true
+  }
 });
+
+// 或者使用toRefs，否则将失去响应式
+const { groupLines, groupSize, groupIndex, position } = toRefs(props);
+
 // Vue3，什么情况下数据会丢失响应式呢？ https://blog.csdn.net/weixin_46683645/article/details/125977313
 
 // 此时 下面的 cnumb 已经不是响应式的了
@@ -39,9 +107,6 @@ const props = defineProps({
 // 如果父组件传过来的属性不需要改变，则直接用即可，如果需要根据传过来的值做处理，可以用 computed 函数
 // const cnumb = computed(() => props.numb + 100)
 // const coldLines = computed(() => props.linesPair.oldLines)
-
-// 或者使用toRefs，否则将失去响应式
-const { linesPair, numb } = toRefs(props);
 </script>
 
 <!-- 
@@ -57,3 +122,70 @@ export default defineComponent({
     }
   })
   </script> -->
+<style>
+.line-prefix {
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+
+.line-value {
+  width: calc(100%-50px);
+}
+
+.line-num {
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+  /* position: absolute;
+  display: inline-block; */
+  -webkit-box-sizing: border-box;
+  box-sizing: border-box;
+  width: 3em;
+  background-color: #fff;
+  color: rgba(0, 0, 0, .3);
+
+  border: solid #eee;
+  /* border-width: 0 1px; */
+  cursor: pointer;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  height: 20px;
+}
+
+.line-num-right {
+  /* padding-right: 0.5em; */
+  text-align: right;
+  border-left-width: 0px;
+  border-right-width: 1px;
+  border-top-width: 0px;
+  border-bottom-width: 0px;
+}
+
+.line-num-left {
+  /* padding-left: 0.5em; */
+  text-align: left;
+  border-left-width: 1px;
+  border-right-width: 0px;
+  border-top-width: 0px;
+  border-bottom-width: 0px;
+}
+
+.line-del {
+  background-color: #fee8e9;
+  border-color: #e9aeae;
+}
+
+.line-empty {
+  background-color: #f8fafd;
+  color: rgba(0, 0, 0, .3);
+  border-color: #d5e4f2;
+}
+
+.line-add {
+  background-color: #dfd;
+  border-color: #b4e2b4;
+}
+</style>

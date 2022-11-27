@@ -1,9 +1,26 @@
 <template>
   <button @click="doDiffText('abc \n abd\nbcd\nacd\n123')">code diff</button>
 
-
-  <SideBySideLine :linesPair="linesPair" :numb="num"></SideBySideLine>
-
+  <div class="diff">
+    <div class="diff-wrapper">
+      <div class="diff-content">
+        <div class="diff-page diff-page-left">
+          <table class="diff-table">
+            <tbody>
+              <SideBySideLine v-for="(item, index) in linesPairs" :groupLines="item.oldLines" :groupSize="item.oldLines.length" position="left" :groupIndex="index"></SideBySideLine>
+            </tbody>
+          </table>
+        </div>
+        <div class="diff-page diff-page-right">
+          <table class="diff-table">
+            <tbody>
+              <SideBySideLine v-for="(item, index) in linesPairs" :groupLines="item.newLines" :groupSize="item.newLines.length" position="right" :groupIndex="index"></SideBySideLine>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
 </template>
 
 <script setup lang="ts">
@@ -20,6 +37,32 @@ import SideBySideLine from './SideBySideLine.vue'
 import hljs from 'highlight.js'
 import { ref, reactive, toRefs } from "vue";
 
+const props = defineProps({
+  pageWidth: {
+    type: String,
+    default: "1200px",
+    required: false
+  },
+  pageHeight: {
+    type: String,
+    default: "400px",
+    required: false
+  },
+  fontSize: {
+    type: String,
+    default: "18px",
+    required: false
+  },
+  oldString: {
+    type: String,
+    required: false
+  },
+  newString: {
+    type: String,
+    required: false
+  },
+});
+
 // 定义外部参数，其他组件使用该组件时可以传的参数
 // https://cn.vuejs.org/guide/typescript/composition-api.html#typing-component-props
 // const props = defineProps({
@@ -28,8 +71,9 @@ import { ref, reactive, toRefs } from "vue";
 // })
 
 // const diffText = ref('');
-const linesPair: ContrastLinesPair = reactive(new ContrastLinesPair(new Array(), new Array()));
-const num = ref(0);
+// const linesPair: ContrastLinesPair = reactive(new ContrastLinesPair(new Array(), new Array()));
+const linesPairs = ref(new Array<ContrastLinesPair>());
+// const num = ref(0);
 const doDiffText = (data: string) => {
   let result: Array<TextLine[]> = getDiff("abc \n abc\nbbd\n123", data);
   console.log(result);
@@ -39,11 +83,12 @@ const doDiffText = (data: string) => {
     return;
   }
   console.log(compactResult);
+  linesPairs.value = compactResult;
 
-  linesPair.newLines = compactResult[num.value].newLines;
-  linesPair.oldLines = compactResult[num.value].oldLines;
-  num.value = num.value + 1;
-  console.log(num.value);
+  // linesPair.newLines = compactResult[1].newLines;
+  // linesPair.oldLines = compactResult[1].oldLines;
+  // num.value = compactResult[1].newLines.length;
+  // console.log(num.value);
 }
 
 </script>
@@ -71,3 +116,62 @@ export default {
   }
 }
 </script> -->
+<style>
+.diff {
+  width: v-bind(pageWidth);
+  /* height: 400px; */
+}
+
+.diff-wrapper {
+  position: relative;
+  line-height: normal;
+  height: v-bind(pageHeight);
+}
+
+.diff-content {
+  display: flex;
+  width: 100%;
+  height: 100%;
+}
+
+.diff-page {
+  display: inline-block;
+  overflow-x: scroll;
+  /* overflow-x: auto; */
+  overflow-y: hidden;
+  width: 50%;
+
+}
+
+.diff-page-left {
+  text-align: left;
+  margin-bottom: -8px;
+}
+
+.diff-page-right {
+  text-align: left;
+  margin-bottom: -8px;
+}
+
+.diff-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-family: Menlo, Consolas, monospace;
+  font-size: v-bind(fontSize);
+}
+
+.diff-wrapper tr {
+  height: 20px;
+  display: table-row;
+  vertical-align: inherit;
+  border-color: inherit;
+}
+
+.diff-wrapper table {
+  display: table;
+  box-sizing: border-box;
+  text-indent: initial;
+  border-spacing: 2px;
+  border-color: grey;
+}
+</style>
