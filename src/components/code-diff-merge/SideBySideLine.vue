@@ -96,12 +96,19 @@ const props = defineProps({
   position: {
     type: String,
     required: true
+  },
+  numTdOffset: {
+    type: Number,
+    required: true
   }
 });
 
 // 或者使用toRefs，否则将失去响应式
-const { groupLines, groupSize, groupIndex, position } = toRefs(props);
+const { groupLines, groupSize, groupIndex, position, numTdOffset } = toRefs(props);
+const numOffsetPx = numTdOffset.value + "px"
 
+console.log("offseepx" + numOffsetPx)
+console.log("numTdOffset " + numTdOffset.value)
 // Vue3，什么情况下数据会丢失响应式呢？ https://blog.csdn.net/weixin_46683645/article/details/125977313
 
 // 此时 下面的 cnumb 已经不是响应式的了
@@ -171,7 +178,7 @@ export default defineComponent({
 .line-num-right {
   /* padding-right: 0.5em; */
   text-align: right;
-  left: 600px;
+  left: v-bind(numOffsetPx);
   border-left-width: 0px;
   border-right-width: 1px;
   border-top-width: 0px;
@@ -181,7 +188,7 @@ export default defineComponent({
 .line-num-left {
   /* padding-left: 0.5em; */
   text-align: left;
-  right: 600px;
+  right: v-bind(numOffsetPx);
   border-left-width: 1px;
   border-right-width: 0px;
   border-top-width: 0px;

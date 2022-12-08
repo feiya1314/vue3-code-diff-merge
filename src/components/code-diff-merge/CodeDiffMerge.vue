@@ -7,14 +7,14 @@
         <div class="diff-page diff-page-left">
           <table class="diff-table">
             <tbody>
-              <SideBySideLine v-for="(item, index) in linesPairs" :groupLines="item.oldLines" :groupSize="item.oldLines.length" position="left" :groupIndex="index"></SideBySideLine>
+              <SideBySideLine v-for="(item, index) in linesPairs" :numTdOffset="numOffset" :groupLines="item.oldLines" :groupSize="item.oldLines.length" position="left" :groupIndex="index"></SideBySideLine>
             </tbody>
           </table>
         </div>
         <div class="diff-page diff-page-right">
           <table class="diff-table">
             <tbody>
-              <SideBySideLine v-for="(item, index) in linesPairs" :groupLines="item.newLines" :groupSize="item.newLines.length" position="right" :groupIndex="index"></SideBySideLine>
+              <SideBySideLine v-for="(item, index) in linesPairs" :numTdOffset="numOffset" :groupLines="item.newLines" :groupSize="item.newLines.length" position="right" :groupIndex="index"></SideBySideLine>
             </tbody>
           </table>
         </div>
@@ -39,13 +39,13 @@ import { ref, reactive, toRefs } from "vue";
 
 const props = defineProps({
   pageWidth: {
-    type: String,
-    default: "1200px",
+    type: Number,
+    default: 1200,
     required: false
   },
   pageHeight: {
-    type: String,
-    default: "400px",
+    type: Number,
+    default: 400,
     required: false
   },
   fontSize: {
@@ -73,6 +73,9 @@ const props = defineProps({
 // const diffText = ref('');
 // const linesPair: ContrastLinesPair = reactive(new ContrastLinesPair(new Array(), new Array()));
 const linesPairs = ref(new Array<ContrastLinesPair>());
+const numOffset = ref(props.pageWidth / 2)
+const widthPx = ref(props.pageWidth + "px")
+const heightPx = ref(props.pageHeight + "px")
 // const num = ref(0);
 const doDiffText = (data: string) => {
   let result: Array<TextLine[]> = getDiff("abc \n abc\nbbd\n123333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333", data);
@@ -118,37 +121,40 @@ export default {
 </script> -->
 <style>
 .diff {
-  width: v-bind(pageWidth);
+  width: v-bind(widthPx);
   /* height: 400px; */
 }
 
 .diff-wrapper {
   position: relative;
   line-height: normal;
-  height: v-bind(pageHeight);
+  height: v-bind(heightPx);
 }
 
 tr {
-    display: table-row;
-    vertical-align: inherit;
-    border-color: inherit;
+  display: table-row;
+  vertical-align: inherit;
+  border-color: inherit;
 }
+
 table {
-    display: table;
-    border-collapse: separate;
-    box-sizing: border-box;
-    text-indent: initial;
-    border-spacing: 2px;
-    border-color: grey;
+  display: table;
+  border-collapse: separate;
+  box-sizing: border-box;
+  text-indent: initial;
+  border-spacing: 2px;
+  border-color: grey;
 }
+
 td {
-    display: table-cell;
-    vertical-align: inherit;
+  display: table-cell;
+  vertical-align: inherit;
 }
+
 tbody {
-    display: table-row-group;
-    vertical-align: middle;
-    border-color: inherit;
+  display: table-row-group;
+  vertical-align: middle;
+  border-color: inherit;
 }
 
 .diff-content {
