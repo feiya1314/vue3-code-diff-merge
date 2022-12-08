@@ -17,31 +17,38 @@
     <!-- -------------------- 右侧 文本列行号 结束------------------------>
 
     <!-- -------------------- 文本列处理 开始------------------------>
+
     <td v-if="groupLines[index].status == LineStatus.REMOVED" class="line-value line-del">
-      <div>
+      <div class="line-value-wapper">
+        <span v-if="position == 'right'" class="line-prefix">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>
         <span class="line-prefix">&nbsp;-&nbsp;</span>
         <span class="line-ctn">{{ groupLines[index].value }}</span>
+        <span v-if="position == 'left'" class="line-prefix">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>
       </div>
     </td>
 
     <td v-if="groupLines[index].status == LineStatus.ADD" class="line-value line-add">
-      <div>
+      <div class="line-value-wapper">
+        <span v-if="position == 'right'" class="line-prefix">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>
         <span class="line-prefix">&nbsp;+&nbsp;</span>
         <span class="line-ctn">{{ groupLines[index].value }}</span>
+        <span v-if="position == 'left'" class="line-prefix">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>
       </div>
     </td>
 
     <td v-if="groupLines[index].status == LineStatus.EMPTY" class="line-value line-empty">
-      <div>
+      <div class="line-value-wapper">
         <span class="line-prefix">&nbsp;&nbsp;&nbsp;</span>
         <span class="line-ctn"><br></span>
       </div>
     </td>
 
     <td v-if="groupLines[index].status == LineStatus.NORMAL" class="line-value line-normal">
-      <div>
+      <div class="line-value-wapper">
+        <span v-if="position == 'right'" class="line-prefix">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>
         <span class="line-prefix">&nbsp;&nbsp;&nbsp;</span>
         <span class="line-ctn">{{ groupLines[index].value }}</span>
+        <span v-if="position == 'left'" class="line-prefix">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>
       </div>
     </td>
     <!-- -------------------- 文本列处理 结束------------------------>
@@ -131,7 +138,11 @@ export default defineComponent({
 }
 
 .line-value {
-  width: calc(100%-50px);
+  width: calc(100%-3em);
+}
+
+.line-value-wapper {
+  width: 100%;
 }
 
 .line-num {
@@ -153,11 +164,14 @@ export default defineComponent({
   overflow: hidden;
   text-overflow: ellipsis;
   height: 20px;
+  position: absolute;
 }
+
 
 .line-num-right {
   /* padding-right: 0.5em; */
   text-align: right;
+  left: 600px;
   border-left-width: 0px;
   border-right-width: 1px;
   border-top-width: 0px;
@@ -167,6 +181,7 @@ export default defineComponent({
 .line-num-left {
   /* padding-left: 0.5em; */
   text-align: left;
+  right: 600px;
   border-left-width: 1px;
   border-right-width: 0px;
   border-top-width: 0px;

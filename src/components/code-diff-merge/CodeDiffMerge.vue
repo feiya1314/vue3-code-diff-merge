@@ -1,5 +1,5 @@
 <template>
-  <button @click="doDiffText('abc \n abd\nbcd\nacd\n123')">code diff</button>
+  <button @click="doDiffText('abc \n abd\nbcd\nacd\n12333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333')">code diff</button>
 
   <div class="diff">
     <div class="diff-wrapper">
@@ -50,7 +50,7 @@ const props = defineProps({
   },
   fontSize: {
     type: String,
-    default: "18px",
+    default: "14px",
     required: false
   },
   oldString: {
@@ -75,7 +75,7 @@ const props = defineProps({
 const linesPairs = ref(new Array<ContrastLinesPair>());
 // const num = ref(0);
 const doDiffText = (data: string) => {
-  let result: Array<TextLine[]> = getDiff("abc \n abc\nbbd\n123", data);
+  let result: Array<TextLine[]> = getDiff("abc \n abc\nbbd\n123333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333", data);
   console.log(result);
 
   let compactResult = compactEmptyLines(result);
@@ -128,6 +128,29 @@ export default {
   height: v-bind(pageHeight);
 }
 
+tr {
+    display: table-row;
+    vertical-align: inherit;
+    border-color: inherit;
+}
+table {
+    display: table;
+    border-collapse: separate;
+    box-sizing: border-box;
+    text-indent: initial;
+    border-spacing: 2px;
+    border-color: grey;
+}
+td {
+    display: table-cell;
+    vertical-align: inherit;
+}
+tbody {
+    display: table-row-group;
+    vertical-align: middle;
+    border-color: inherit;
+}
+
 .diff-content {
   display: flex;
   width: 100%;
@@ -142,6 +165,10 @@ export default {
   width: 50%;
 
 }
+
+/* .diff-page::-webkit-scrollbar {
+  display: none;
+} */
 
 .diff-page-left {
   text-align: left;
@@ -158,6 +185,7 @@ export default {
   border-collapse: collapse;
   font-family: Menlo, Consolas, monospace;
   font-size: v-bind(fontSize);
+  /* table-layout : fixed ; */
 }
 
 .diff-wrapper tr {
