@@ -4,7 +4,7 @@
     <!-- -------------------- 右侧 文本列行号 开始------------------------>
     <td v-if="position == 'right' && groupLines[index].status == LineStatus.ADD" class="line-num-right line-num line-add">
       {{ groupLines[index].index }}
-      <span v-if="index == 0"> «&nbsp;</span>
+      <span v-if="index == 0"> <b style="color: #000000;">«&nbsp;</b></span>
       <span v-if="index > 0"> &nbsp;&nbsp; </span>
     </td>
 
@@ -24,15 +24,17 @@
         <span class="line-prefix">&nbsp;-&nbsp;</span>
         <span class="line-ctn">{{ groupLines[index].value }}</span>
         <span v-if="position == 'left'" class="line-prefix">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>
+        <span v-if="position == 'right'" class="line-prefix">&nbsp;</span>
       </div>
     </td>
 
     <td v-if="groupLines[index].status == LineStatus.ADD" class="line-value line-add">
       <div class="line-value-wapper">
         <span v-if="position == 'right'" class="line-prefix">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>
-        <span class="line-prefix">&nbsp;+&nbsp;</span>
+        <span class="line-prefix">+&nbsp;</span>
         <span class="line-ctn">{{ groupLines[index].value }}</span>
         <span v-if="position == 'left'" class="line-prefix">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>
+        <span v-if="position == 'right'" class="line-prefix">&nbsp;</span>
       </div>
     </td>
 
@@ -49,13 +51,14 @@
         <span class="line-prefix">&nbsp;&nbsp;&nbsp;</span>
         <span class="line-ctn">{{ groupLines[index].value }}</span>
         <span v-if="position == 'left'" class="line-prefix">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>
+        <span v-if="position == 'right'" class="line-prefix">&nbsp;</span>
       </div>
     </td>
     <!-- -------------------- 文本列处理 结束------------------------>
 
     <!-- -------------------- 左侧 文本列行号 开始------------------------>
     <td v-if="position == 'left' && groupLines[index].status == LineStatus.REMOVED" class="line-num-left line-num line-del">
-      <span v-if="index == 0"> &nbsp;» </span>
+      <span v-if="index == 0"> <b style="color: #000000;">&nbsp;» </b></span>
       <span v-if="index > 0"> &nbsp;&nbsp; </span>
       {{ groupLines[index].index }}
     </td>
