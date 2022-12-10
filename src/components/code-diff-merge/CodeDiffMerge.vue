@@ -7,14 +7,14 @@
         <div class="diff-page diff-page-left">
           <table class="diff-table">
             <tbody>
-              <SideBySideLine v-for="(item, index) in linesPairs" :numTdOffset="numOffset" :groupLines="item.oldLines" :groupSize="item.oldLines.length" position="left" :groupIndex="index"></SideBySideLine>
+              <SideBySideLine v-for="(item, index) in linesPairs" :numTdOffset="numOffset" :groupLines="item.oldLines" :groupSize="item.oldLines.length" position="left" :groupIndex="index" @merge-lines="mergeLines"></SideBySideLine>
             </tbody>
           </table>
         </div>
         <div class="diff-page diff-page-right">
           <table class="diff-table">
             <tbody>
-              <SideBySideLine v-for="(item, index) in linesPairs" :numTdOffset="numOffset" :groupLines="item.newLines" :groupSize="item.newLines.length" position="right" :groupIndex="index"></SideBySideLine>
+              <SideBySideLine v-for="(item, index) in linesPairs" :numTdOffset="numOffset" :groupLines="item.newLines" :groupSize="item.newLines.length" position="right" :groupIndex="index" @merge-lines="mergeLines"></SideBySideLine>
             </tbody>
           </table>
         </div>
@@ -30,12 +30,13 @@
 // https://juejin.cn/post/7029339447078420493
 // https://juejin.cn/post/6890545920883032071
 
-import { getDiff, compactEmptyLines } from './code-diff-merge'
+import { getDiff, compactEmptyLines, getDiffStrFromPairs } from './code-diff-merge'
 import { TextLine } from './text-line'
 import { ContrastLinesPair } from './contrast-lines-pair'
 import SideBySideLine from './SideBySideLine.vue'
 import hljs from 'highlight.js'
-import { ref, reactive, toRefs } from "vue";
+import { ref, reactive, toRefs, defineEmits } from "vue";
+import { LineStatus } from './line-status-enum'
 
 const props = defineProps({
   pageWidth: {
@@ -50,7 +51,7 @@ const props = defineProps({
   },
   fontSize: {
     type: String,
-    default: "14px",
+    default: "18px",
     required: false
   },
   oldString: {
@@ -76,6 +77,7 @@ const linesPairs = ref(new Array<ContrastLinesPair>());
 const numOffset = ref(props.pageWidth / 2)
 const widthPx = ref(props.pageWidth + "px")
 const heightPx = ref(props.pageHeight + "px")
+
 // const num = ref(0);
 const doDiffText = (data: string) => {
   let result: Array<TextLine[]> = getDiff("abc \n abc\nbbd\n123333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333", data);
@@ -94,6 +96,64 @@ const doDiffText = (data: string) => {
   // console.log(num.value);
 }
 
+const refreshDiffLines = (oldStr: string, newStr: string) => {
+  let result: Array<TextLine[]> = getDiff(oldStr, newStr);
+  console.log(result);
+
+  let compactResult = compactEmptyLines(result);
+  if (compactResult == null || compactResult.length == 0) {
+    return;
+  }
+  console.log(compactResult);
+  linesPairs.value = compactResult;
+}
+
+// merge事件，子组件点即合并按钮，调用父组件，传递操作，是左向右合并还是右向左合并
+const mergeLines = (pos: string, index: number) => {
+  console.log("merge lines event :" + pos + " ," + index);
+
+  let oldStr: string = '';
+  let newStr: string = '';
+
+  let pairs = linesPairs.value;
+  let pairsLen = pairs.length;
+
+  for (let i = 0; i < pairsLen; i++) {
+    let oldLines = pairs[i].oldLines;
+    let newLines = pairs[i].newLines;
+
+    for (let j = 0; j < oldLines.length; j++) {
+      // 不需要合并的一组 diff change
+      if (i != index) {
+        if (oldLines[j].status != LineStatus.EMPTY) {
+          oldStr = oldStr + oldLines[j].value + '\n';
+        }
+
+        if (newLines[j].status != LineStatus.EMPTY) {
+          newStr = newStr + newLines[j].value + '\n';
+        }
+        continue;
+      }
+
+      // 左向右合并
+      if (pos == 'left' && oldLines[j].status != LineStatus.EMPTY) {
+        oldStr = oldStr + oldLines[j].value + '\n';
+        newStr = newStr + oldLines[j].value + '\n';
+        continue;
+      }
+
+      // 右向左合并
+      if (pos == 'right' && newLines[j].status != LineStatus.EMPTY) {
+        oldStr = oldStr + newLines[j].value + '\n';
+        newStr = newStr + newLines[j].value + '\n';
+      }
+    }
+  }
+
+  // console.log("refresh : old : " + oldStr);
+  // console.log("refresh : newStr : " + newStr);
+  refreshDiffLines(oldStr, newStr);
+}
 </script>
 
 <!-- 上面的script是下面的简化版 -->

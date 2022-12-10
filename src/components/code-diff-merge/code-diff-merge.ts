@@ -5,7 +5,7 @@ import { LineStatus } from './line-status-enum'
 
 let EMPTY_LINE = new TextLine(null, false, null, LineStatus.EMPTY);
 
-export function getDiff(oldStr: string, newStr: string,): Array<TextLine[]> {
+export function getDiff(oldStr: string, newStr: string): Array<TextLine[]> {
     let changes: Change[] = diffLines(oldStr, newStr);
     console.log(changes)
     // console.log(changes.length)
@@ -104,7 +104,7 @@ export function compactEmptyLines(result: Array<TextLine[]>): ContrastLinesPair[
 
                 i++;
             }
-            
+
             // 这里需要把while中 i-1，因为for循环中会执行 i++,会多加一次 
             i--;
             compactResult.push(new ContrastLinesPair(tempOldLines, tempNewLines));
@@ -119,6 +119,42 @@ export function compactEmptyLines(result: Array<TextLine[]>): ContrastLinesPair[
     return compactResult;
 }
 
+/**
+ * 从新老diff对比列别中提取新老字符串
+ * @param pairs  格式化的对比行
+ * @returns 新老字符串
+ */
+export function getDiffStrFromPairs(pairs: Array<ContrastLinesPair>): Map<string, string> {
+    let result: Map<string, string> = new Map();
+    if (pairs == null || pairs.length == 0) {
+        result.set('old', '');
+        result.set('new', '');
+        return result;
+    }
+
+    let oldStr: string = '';
+    let newStr: string = '';
+
+    let pairsLen = pairs.length;
+    for (let i = 0; i < pairsLen; i++) {
+        let oldLines = pairs[i].oldLines;
+        let newLines = pairs[i].newLines;
+
+        for (let j = 0; j < oldLines.length; j++) {
+            if (oldLines[j].status != LineStatus.EMPTY) {
+                oldStr = oldStr + oldLines[j].value + '\n';
+            }
+            if (newLines[j].status != LineStatus.EMPTY) {
+                newStr = newStr + newLines[j].value + '\n';
+            }
+        }
+    }
+
+    result.set('old', oldStr);
+    result.set('new', newStr);
+
+    return result;
+}
 function alignLinesAndPush(oldCompcatLines: TextLine[], newCompcatLines: TextLine[], compactResult: ContrastLinesPair[]) {
     if (oldCompcatLines.length < newCompcatLines.length) {
         let emptyLineNum = newCompcatLines.length - oldCompcatLines.length

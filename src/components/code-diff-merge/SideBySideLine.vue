@@ -4,7 +4,7 @@
     <!-- -------------------- 右侧 文本列行号 开始------------------------>
     <td v-if="position == 'right' && groupLines[index].status == LineStatus.ADD" class="line-num-right line-num line-add">
       {{ groupLines[index].index }}
-      <span v-if="index == 0"> <b style="color: #000000;">«&nbsp;</b></span>
+      <span v-if="index == 0" @click="$emit('merge-lines', 'right', groupIndex)"> <b style="color: #000000;">«&nbsp;</b></span>
       <span v-if="index > 0"> &nbsp;&nbsp; </span>
     </td>
 
@@ -47,7 +47,7 @@
 
     <td v-if="groupLines[index].status == LineStatus.NORMAL" class="line-value line-normal">
       <div class="line-value-wapper">
-        <span v-if="position == 'right'" class="line-prefix">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>
+        <span v-if="position == 'right'" class="line-prefix">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>
         <span class="line-prefix">&nbsp;&nbsp;&nbsp;</span>
         <span class="line-ctn">{{ groupLines[index].value }}</span>
         <span v-if="position == 'left'" class="line-prefix">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>
@@ -58,7 +58,7 @@
 
     <!-- -------------------- 左侧 文本列行号 开始------------------------>
     <td v-if="position == 'left' && groupLines[index].status == LineStatus.REMOVED" class="line-num-left line-num line-del">
-      <span v-if="index == 0"> <b style="color: #000000;">&nbsp;» </b></span>
+      <span v-if="index == 0" @click="$emit('merge-lines', 'left', groupIndex)"> <b style="color: #000000;">&nbsp;» </b></span>
       <span v-if="index > 0"> &nbsp;&nbsp; </span>
       {{ groupLines[index].index }}
     </td>
@@ -77,7 +77,7 @@
 <script setup lang="ts">
 import { TextLine } from './text-line'
 import { ContrastLinesPair } from './contrast-lines-pair'
-import { ref, reactive, toRefs, computed } from "vue";
+import { ref, reactive, toRefs, computed, defineEmits } from "vue";
 import { LineStatus } from './line-status-enum'
 // 定义外部参数，其他组件使用该组件时可以传的参数
 
@@ -109,6 +109,9 @@ const props = defineProps({
 // 或者使用toRefs，否则将失去响应式
 const { groupLines, groupSize, groupIndex, position, numTdOffset } = toRefs(props);
 const numOffsetPx = numTdOffset.value + "px"
+
+// 注册父组件监听的事件
+const emit = defineEmits(['merge-lines']);
 
 console.log("offseepx" + numOffsetPx)
 console.log("numTdOffset " + numTdOffset.value)
@@ -173,7 +176,7 @@ export default defineComponent({
   cursor: pointer;
   overflow: hidden;
   text-overflow: ellipsis;
-  height: 20px;
+  /* height: 20px; */
   position: absolute;
 }
 
