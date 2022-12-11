@@ -1,6 +1,6 @@
 <template>
   <TestComp />
-  <CodeDiffMerge />
+  <CodeDiffMerge :old-string="oldStr" :new-string="newStr"/>
 </template>
 
 <script setup lang="ts">
@@ -10,6 +10,10 @@
 // https://juejin.cn/post/6890545920883032071
 
 import { TestComp, CodeDiffMerge } from './components/index'
+import { ref, reactive, toRefs, defineEmits } from "vue";
+const oldStr = ref("abc \n abc\nbbd\n123333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333");
+const newStr = ref("abc \n abd\nbcd\nacd\n12333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333");
+
 </script>
 
 <style scoped>

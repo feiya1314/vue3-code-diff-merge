@@ -1,19 +1,17 @@
 <template>
-  <button @click="doDiffText('abc \n abd\nbcd\nacd\n12333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333')">code diff</button>
-
   <div class="diff">
     <div class="diff-wrapper">
       <div class="diff-content">
-        <div class="diff-page diff-page-left">
+        <div spellcheck="false" class="diff-page diff-page-left">
           <table class="diff-table">
-            <tbody>
+            <tbody contenteditable="true">
               <SideBySideLine v-for="(item, index) in linesPairs" :numTdOffset="numOffset" :groupLines="item.oldLines" :groupSize="item.oldLines.length" position="left" :groupIndex="index" @merge-lines="mergeLines"></SideBySideLine>
             </tbody>
           </table>
         </div>
-        <div class="diff-page diff-page-right">
+        <div spellcheck="false" class="diff-page diff-page-right">
           <table class="diff-table">
-            <tbody>
+            <tbody contenteditable="true">
               <SideBySideLine v-for="(item, index) in linesPairs" :numTdOffset="numOffset" :groupLines="item.newLines" :groupSize="item.newLines.length" position="right" :groupIndex="index" @merge-lines="mergeLines"></SideBySideLine>
             </tbody>
           </table>
@@ -35,8 +33,8 @@ import { TextLine } from './text-line'
 import { ContrastLinesPair } from './contrast-lines-pair'
 import SideBySideLine from './SideBySideLine.vue'
 import hljs from 'highlight.js'
-import { ref, reactive, toRefs, defineEmits } from "vue";
-import { LineStatus } from './line-status-enum'
+import { ref, reactive, toRefs, defineEmits, onMounted } from "vue";
+import { LineStatus } from './line-status-enum';
 
 const props = defineProps({
   pageWidth: {
@@ -56,11 +54,11 @@ const props = defineProps({
   },
   oldString: {
     type: String,
-    required: false
+    required: true
   },
   newString: {
     type: String,
-    required: false
+    required: true
   },
 });
 
@@ -77,24 +75,6 @@ const linesPairs = ref(new Array<ContrastLinesPair>());
 const numOffset = ref(props.pageWidth / 2)
 const widthPx = ref(props.pageWidth + "px")
 const heightPx = ref(props.pageHeight + "px")
-
-// const num = ref(0);
-const doDiffText = (data: string) => {
-  let result: Array<TextLine[]> = getDiff("abc \n abc\nbbd\n123333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333", data);
-  console.log(result);
-
-  let compactResult = compactEmptyLines(result);
-  if (compactResult == null || compactResult.length == 0) {
-    return;
-  }
-  console.log(compactResult);
-  linesPairs.value = compactResult;
-
-  // linesPair.newLines = compactResult[1].newLines;
-  // linesPair.oldLines = compactResult[1].oldLines;
-  // num.value = compactResult[1].newLines.length;
-  // console.log(num.value);
-}
 
 const refreshDiffLines = (oldStr: string, newStr: string) => {
   let result: Array<TextLine[]> = getDiff(oldStr, newStr);
@@ -154,6 +134,11 @@ const mergeLines = (pos: string, index: number) => {
   // console.log("refresh : newStr : " + newStr);
   refreshDiffLines(oldStr, newStr);
 }
+
+// 在组件挂载完成后,初始化开始对比
+onMounted(() => {
+  refreshDiffLines(props.oldString, props.newString);
+})
 </script>
 
 <!-- 上面的script是下面的简化版 -->
@@ -215,6 +200,8 @@ tbody {
   display: table-row-group;
   vertical-align: middle;
   border-color: inherit;
+  border: none;
+  outline: medium;
 }
 
 .diff-content {
@@ -229,7 +216,6 @@ tbody {
   /* overflow-x: auto; */
   overflow-y: hidden;
   width: 50%;
-
 }
 
 /* .diff-page::-webkit-scrollbar {

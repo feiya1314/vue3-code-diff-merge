@@ -17,7 +17,42 @@
     <!-- -------------------- 右侧 文本列行号 结束------------------------>
 
     <!-- -------------------- 文本列处理 开始------------------------>
-
+    <!-- <td v-if="position == 'right'" class="change-symbol">
+      <div class="line-value-wapper change-symbol-right">
+        <span class="line-prefix line-add" v-if="groupLines[index].status == LineStatus.ADD">&nbsp;+&nbsp;</span>
+        <span class="line-prefix line-del" v-if="groupLines[index].status == LineStatus.REMOVED">&nbsp;-&nbsp;</span>
+        <span class="line-prefix line-empty" v-if="groupLines[index].status == LineStatus.EMPTY">&nbsp;&nbsp;&nbsp;</span>
+        <span class="line-prefix line-normal" v-if="groupLines[index].status == LineStatus.NORMAL">&nbsp;&nbsp;&nbsp;</span>
+      </div>
+    </td> -->
+    <td v-if="groupLines[index].status == LineStatus.ADD && position == 'right'" class="change-symbol line-prefix line-add">
+      <div class="line-value-wapper change-symbol-right">
+        <span class="line-prefix line-add" v-if="groupLines[index].status == LineStatus.ADD">&nbsp;+&nbsp;</span>
+      </div>
+    </td>
+    <td v-if="groupLines[index].status == LineStatus.REMOVED && position == 'right'" class="change-symbol line-prefix line-del">
+      <div class="line-value-wapper change-symbol-right">
+        <span class="line-prefix line-del">&nbsp;-&nbsp;</span>
+      </div>
+    </td>
+    <td v-if="groupLines[index].status == LineStatus.EMPTY && position == 'right'" class="change-symbol line-prefix line-empty">
+      <div class="line-value-wapper change-symbol-right">
+        <span class="line-prefix line-empty">&nbsp;&nbsp;&nbsp;</span>
+      </div>
+    </td>
+    <td v-if="groupLines[index].status == LineStatus.NORMAL && position == 'right'" class="change-symbol line-prefix line-normal">
+      <div class="line-value-wapper change-symbol-right">
+        <span class="line-prefix line-normal">&nbsp;&nbsp;&nbsp;</span>
+      </div>
+    </td>
+    <!-- <td v-if="position == 'left'" class="change-symbol">
+      <div class="line-value-wapper change-symbol-left">
+        <span class="line-prefix line-add" v-if="groupLines[index].status == LineStatus.ADD">&nbsp;+&nbsp;</span>
+        <span class="line-prefix line-del" v-if="groupLines[index].status == LineStatus.REMOVED">&nbsp;-&nbsp;</span>
+        <span class="line-prefix line-empty" v-if="groupLines[index].status == LineStatus.EMPTY">&nbsp;&nbsp;&nbsp;</span>
+        <span class="line-prefix line-normal" v-if="groupLines[index].status == LineStatus.NORMAL">&nbsp;&nbsp;&nbsp;</span>
+      </div>
+    </td> -->
     <td v-if="groupLines[index].status == LineStatus.REMOVED" class="line-value line-del">
       <div class="line-value-wapper">
         <span v-if="position == 'right'" class="line-prefix">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>
@@ -80,7 +115,6 @@ import { ContrastLinesPair } from './contrast-lines-pair'
 import { ref, reactive, toRefs, computed, defineEmits } from "vue";
 import { LineStatus } from './line-status-enum'
 // 定义外部参数，其他组件使用该组件时可以传的参数
-
 
 // https://cn.vuejs.org/guide/typescript/composition-api.html#typing-component-props
 const props = defineProps({
@@ -154,6 +188,21 @@ export default defineComponent({
   width: calc(100%-3em);
 }
 
+.read-only {
+  pointer-events: none;
+}
+
+.change-symbol-right {
+  margin-left: 100px;
+}
+
+/* span::before{
+
+} */
+.line-value-span {
+  cursor: text;
+}
+
 .line-value-wapper {
   width: 100%;
 }
@@ -179,7 +228,6 @@ export default defineComponent({
   /* height: 20px; */
   position: absolute;
 }
-
 
 .line-num-right {
   /* padding-right: 0.5em; */
