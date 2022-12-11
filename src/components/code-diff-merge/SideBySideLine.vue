@@ -2,105 +2,78 @@
   <tr v-for="(n, index) in groupSize">
 
     <!-- -------------------- 右侧 文本列行号 开始------------------------>
-    <td v-if="position == 'right' && groupLines[index].status == LineStatus.ADD" class="line-num-right line-num line-add">
+    <td contenteditable="false" v-if="position == 'right' && groupLines[index].status == LineStatus.ADD" class="line-num-right line-num line-add">
       {{ groupLines[index].index }}
       <span v-if="index == 0" @click="$emit('merge-lines', 'right', groupIndex)"> <b style="color: #000000;">«&nbsp;</b></span>
       <span v-if="index > 0"> &nbsp;&nbsp; </span>
     </td>
 
-    <td v-if="position == 'right' && groupLines[index].status == LineStatus.EMPTY" class="line-num-right line-num line-empty" />
+    <td contenteditable="false" v-if="position == 'right' && groupLines[index].status == LineStatus.EMPTY" class="line-num-right line-num line-empty" />
 
-    <td v-if="position == 'right' && groupLines[index].status == LineStatus.NORMAL" class="line-num-right line-num line-normal">
+    <td contenteditable="false" v-if="position == 'right' && groupLines[index].status == LineStatus.NORMAL" class="line-num-right line-num line-normal">
       {{ groupLines[index].index }}
       &nbsp;&nbsp;
     </td>
     <!-- -------------------- 右侧 文本列行号 结束------------------------>
 
-    <!-- -------------------- 文本列处理 开始------------------------>
-    <!-- <td v-if="position == 'right'" class="change-symbol">
-      <div class="line-value-wapper change-symbol-right">
-        <span class="line-prefix line-add" v-if="groupLines[index].status == LineStatus.ADD">&nbsp;+&nbsp;</span>
-        <span class="line-prefix line-del" v-if="groupLines[index].status == LineStatus.REMOVED">&nbsp;-&nbsp;</span>
-        <span class="line-prefix line-empty" v-if="groupLines[index].status == LineStatus.EMPTY">&nbsp;&nbsp;&nbsp;</span>
-        <span class="line-prefix line-normal" v-if="groupLines[index].status == LineStatus.NORMAL">&nbsp;&nbsp;&nbsp;</span>
-      </div>
-    </td> -->
-    <td v-if="groupLines[index].status == LineStatus.ADD && position == 'right'" class="change-symbol line-prefix line-add">
-      <div class="line-value-wapper change-symbol-right">
+    <!-- 添加行diff状态符号 + 或者 — -->
+    <td contenteditable="false" v-if="groupLines[index].status == LineStatus.ADD" class="change-symbol line-prefix line-add">
+      <div :class="position == 'right' ? 'change-symbol-right' : 'change-symbol-left'">
         <span class="line-prefix line-add" v-if="groupLines[index].status == LineStatus.ADD">&nbsp;+&nbsp;</span>
       </div>
     </td>
-    <td v-if="groupLines[index].status == LineStatus.REMOVED && position == 'right'" class="change-symbol line-prefix line-del">
-      <div class="line-value-wapper change-symbol-right">
+    <td contenteditable="false" v-if="groupLines[index].status == LineStatus.REMOVED" class="change-symbol line-prefix line-del">
+      <div :class="position == 'right' ? 'change-symbol-right' : 'change-symbol-left'">
         <span class="line-prefix line-del">&nbsp;-&nbsp;</span>
       </div>
     </td>
-    <td v-if="groupLines[index].status == LineStatus.EMPTY && position == 'right'" class="change-symbol line-prefix line-empty">
-      <div class="line-value-wapper change-symbol-right">
+    <td contenteditable="false" v-if="groupLines[index].status == LineStatus.EMPTY" class="change-symbol line-prefix line-empty">
+      <div :class="position == 'right' ? 'change-symbol-right' : 'change-symbol-left'">
         <span class="line-prefix line-empty">&nbsp;&nbsp;&nbsp;</span>
       </div>
     </td>
-    <td v-if="groupLines[index].status == LineStatus.NORMAL && position == 'right'" class="change-symbol line-prefix line-normal">
-      <div class="line-value-wapper change-symbol-right">
+    <td contenteditable="false" v-if="groupLines[index].status == LineStatus.NORMAL" class="change-symbol line-prefix line-normal">
+      <div :class="position == 'right' ? 'change-symbol-right' : 'change-symbol-left'">
         <span class="line-prefix line-normal">&nbsp;&nbsp;&nbsp;</span>
       </div>
     </td>
-    <!-- <td v-if="position == 'left'" class="change-symbol">
-      <div class="line-value-wapper change-symbol-left">
-        <span class="line-prefix line-add" v-if="groupLines[index].status == LineStatus.ADD">&nbsp;+&nbsp;</span>
-        <span class="line-prefix line-del" v-if="groupLines[index].status == LineStatus.REMOVED">&nbsp;-&nbsp;</span>
-        <span class="line-prefix line-empty" v-if="groupLines[index].status == LineStatus.EMPTY">&nbsp;&nbsp;&nbsp;</span>
-        <span class="line-prefix line-normal" v-if="groupLines[index].status == LineStatus.NORMAL">&nbsp;&nbsp;&nbsp;</span>
-      </div>
-    </td> -->
+
+    <!-- -----------------------  文本列填充实际值 开始 -------------------------------------------------- -->
     <td v-if="groupLines[index].status == LineStatus.REMOVED" class="line-value line-del">
-      <div class="line-value-wapper">
-        <span v-if="position == 'right'" class="line-prefix">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>
-        <span class="line-prefix">&nbsp;-&nbsp;</span>
+      <div class="line-value-wapper" :class="position == 'right' ? 'line-value-wapper-right' : 'line-value-wapper-left'">
         <span class="line-ctn">{{ groupLines[index].value }}</span>
-        <span v-if="position == 'left'" class="line-prefix">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>
-        <span v-if="position == 'right'" class="line-prefix">&nbsp;</span>
       </div>
     </td>
 
     <td v-if="groupLines[index].status == LineStatus.ADD" class="line-value line-add">
-      <div class="line-value-wapper">
-        <span v-if="position == 'right'" class="line-prefix">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>
-        <span class="line-prefix">+&nbsp;</span>
+      <div class="line-value-wapper" :class="position == 'right' ? 'line-value-wapper-right' : 'line-value-wapper-left'">
         <span class="line-ctn">{{ groupLines[index].value }}</span>
-        <span v-if="position == 'left'" class="line-prefix">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>
-        <span v-if="position == 'right'" class="line-prefix">&nbsp;</span>
       </div>
     </td>
 
     <td v-if="groupLines[index].status == LineStatus.EMPTY" class="line-value line-empty">
       <div class="line-value-wapper">
-        <span class="line-prefix">&nbsp;&nbsp;&nbsp;</span>
         <span class="line-ctn"><br></span>
       </div>
     </td>
 
     <td v-if="groupLines[index].status == LineStatus.NORMAL" class="line-value line-normal">
-      <div class="line-value-wapper">
-        <span v-if="position == 'right'" class="line-prefix">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>
-        <span class="line-prefix">&nbsp;&nbsp;&nbsp;</span>
+      <div class="line-value-wapper" :class="position == 'right' ? 'line-value-wapper-right' : 'line-value-wapper-left'">
         <span class="line-ctn">{{ groupLines[index].value }}</span>
-        <span v-if="position == 'left'" class="line-prefix">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>
-        <span v-if="position == 'right'" class="line-prefix">&nbsp;</span>
       </div>
     </td>
     <!-- -------------------- 文本列处理 结束------------------------>
 
     <!-- -------------------- 左侧 文本列行号 开始------------------------>
-    <td v-if="position == 'left' && groupLines[index].status == LineStatus.REMOVED" class="line-num-left line-num line-del">
+    <td contenteditable="false" v-if="position == 'left' && groupLines[index].status == LineStatus.REMOVED" class="line-num-left line-num line-del">
       <span v-if="index == 0" @click="$emit('merge-lines', 'left', groupIndex)"> <b style="color: #000000;">&nbsp;» </b></span>
       <span v-if="index > 0"> &nbsp;&nbsp; </span>
       {{ groupLines[index].index }}
     </td>
 
-    <td v-if="position == 'left' && groupLines[index].status == LineStatus.EMPTY" class="line-num-left line-num line-empty" />
+    <td contenteditable="false" v-if="position == 'left' && groupLines[index].status == LineStatus.EMPTY" class="line-num-left line-num line-empty" />
 
-    <td v-if="position == 'left' && groupLines[index].status == LineStatus.NORMAL" class="line-num-left line-num line-normal">
+    <td contenteditable="false" v-if="position == 'left' && groupLines[index].status == LineStatus.NORMAL" class="line-num-left line-num line-normal">
       &nbsp;&nbsp;
       {{ groupLines[index].index }}
     </td>
@@ -193,7 +166,7 @@ export default defineComponent({
 }
 
 .change-symbol-right {
-  margin-left: 100px;
+  margin-left: 3em;
 }
 
 /* span::before{
@@ -205,6 +178,14 @@ export default defineComponent({
 
 .line-value-wapper {
   width: 100%;
+}
+
+.line-value-wapper-left {
+  margin-right: 3.5em;
+}
+
+.line-value-wapper-right {
+  margin-right: 0.5em;
 }
 
 .line-num {
