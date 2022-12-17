@@ -3,22 +3,27 @@
     <div class="diff-wrapper">
       <div class="diff-content">
         <div spellcheck="false" class="diff-page diff-page-left">
-          <table class="diff-table">
-            <tbody contenteditable="true">
-              <SideBySideLine v-for="(item, index) in linesPairs" :numTdOffset="numOffset" :groupLines="item.oldLines" :groupSize="item.oldLines.length" position="left" :groupIndex="index" @merge-lines="mergeLines"></SideBySideLine>
+          <!-- <textarea spellcheck="false" id="old-text" v-model="originJsonData" placeholder="请输入数据..." /> -->
+          <textarea v-if='displayInput' class="oldStrInput" spellcheck="false" id="old-text" v-model="oldStrInput" placeholder="请输入数据..." />
+          <table class="diff-table diff-table-left">
+            <tbody v-if='displayDiff' :contenteditable="contentEditable">
+              <SideBySideLine v-for="(item, index) in linesPairs" :numTdOffset="numOffset" :editable="contentEditable" :groupLines="item.oldLines" :groupSize="item.oldLines.length" position="left" :groupIndex="index" @merge-lines="mergeLines" @value-change="valueChange"></SideBySideLine>
             </tbody>
           </table>
         </div>
         <div spellcheck="false" class="diff-page diff-page-right">
-          <table class="diff-table">
-            <tbody contenteditable="true">
-              <SideBySideLine v-for="(item, index) in linesPairs" :numTdOffset="numOffset" :groupLines="item.newLines" :groupSize="item.newLines.length" position="right" :groupIndex="index" @merge-lines="mergeLines"></SideBySideLine>
+          <textarea v-if='displayInput' class="newStrInput" spellcheck="false" id="new-text" v-model="newStrInput" placeholder="请输入数据..." />
+          <table v-if='displayDiff' class="diff-table  diff-table-right">
+            <tbody :contenteditable="contentEditable">
+              <SideBySideLine v-for="(item, index) in linesPairs" :numTdOffset="numOffset" :editable="contentEditable" :groupLines="item.newLines" :groupSize="item.newLines.length" position="right" :groupIndex="index" @merge-lines="mergeLines" @value-change="valueChange"></SideBySideLine>
             </tbody>
           </table>
         </div>
       </div>
     </div>
   </div>
+  <!-- <span><br>{{ linesPairs[1].newLines[3].value }}</span> -->
+  <!-- <span><br>{{ linesPairs.length }}</span> -->
 </template>
 
 <script setup lang="ts">
@@ -29,11 +34,11 @@
 // https://juejin.cn/post/6890545920883032071
 
 import { getDiff, compactEmptyLines, getDiffStrFromPairs } from './code-diff-merge'
-import { TextLine } from './text-line'
+import { TextLine, EMPTY_NORMAL } from './text-line'
 import { ContrastLinesPair } from './contrast-lines-pair'
 import SideBySideLine from './SideBySideLine.vue'
 import hljs from 'highlight.js'
-import { ref, reactive, toRefs, defineEmits, onMounted } from "vue";
+import { ref, reactive, watch, toRefs, defineEmits, onMounted } from "vue";
 import { LineStatus } from './line-status-enum';
 
 const props = defineProps({
@@ -52,14 +57,19 @@ const props = defineProps({
     default: "18px",
     required: false
   },
-  oldString: {
-    type: String,
-    required: true
-  },
-  newString: {
-    type: String,
-    required: true
-  },
+  // oldString: {
+  //   type: String,
+  //   required: true
+  // },
+  // newString: {
+  //   type: String,
+  //   required: true
+  // },
+  editable: {
+    type: Boolean,
+    required: false,
+    default: false,
+  }
 });
 
 // 定义外部参数，其他组件使用该组件时可以传的参数
@@ -75,6 +85,19 @@ const linesPairs = ref(new Array<ContrastLinesPair>());
 const numOffset = ref(props.pageWidth / 2)
 const widthPx = ref(props.pageWidth + "px")
 const heightPx = ref(props.pageHeight + "px")
+const contentEditable = ref(props.editable)
+
+const displayDiff = ref(false);
+const displayInput = ref(true);
+
+const leftDisplay = ref("none");
+const oldInputDisplay = ref("inline");
+
+const rightDisplay = ref("none");
+const newInputDisplay = ref("inline");
+
+const oldStrInput = ref('');
+const newStrInput = ref('');
 
 const refreshDiffLines = (oldStr: string, newStr: string) => {
   let result: Array<TextLine[]> = getDiff(oldStr, newStr);
@@ -84,6 +107,9 @@ const refreshDiffLines = (oldStr: string, newStr: string) => {
   if (compactResult == null || compactResult.length == 0) {
     return;
   }
+  // 最后一行占位
+  let botLine: ContrastLinesPair = new ContrastLinesPair([EMPTY_NORMAL], [EMPTY_NORMAL]);
+  compactResult.push(botLine);
   console.log(compactResult);
   linesPairs.value = compactResult;
 }
@@ -130,15 +156,50 @@ const mergeLines = (pos: string, index: number) => {
     }
   }
 
+  // 删除字符串最后的换行符
+  oldStr = oldStr.length == 0 ? oldStr : oldStr.substring(0, oldStr.length - 1);
+  newStr = newStr.length == 0 ? newStr : newStr.substring(0, newStr.length - 1);
   // console.log("refresh : old : " + oldStr);
   // console.log("refresh : newStr : " + newStr);
   refreshDiffLines(oldStr, newStr);
 }
 
+const valueChange = (pos: string, changedValue: string, pairIndex: number, lineIndex: number) => {
+  console.log("changedValue " + changedValue + " pairIndex " + pairIndex + " lineIndex " + lineIndex)
+}
 // 在组件挂载完成后,初始化开始对比
-onMounted(() => {
-  refreshDiffLines(props.oldString, props.newString);
+// onMounted(() => {
+//   refreshDiffLines(props.oldString, props.newString);
+// })
+
+watch(oldStrInput, (newValue) => {
+  // console.log("old string update  : " + newValue);
+  update();
 })
+
+watch(newStrInput, (newValue) => {
+  // console.log("new  string update  : " + newValue);
+  update();
+})
+
+function update() {
+  if (oldStrInput.value == null || newStrInput.value == null || oldStrInput.value == '' || newStrInput.value == '') {
+    return;
+  }
+
+  displayInput.value = false;
+  displayDiff.value = true;
+
+  refreshDiffLines(oldStrInput.value, newStrInput.value);
+}
+
+watch(linesPairs, (newValue, oldValue) => {
+  // 在嵌套的属性变更时触发
+  // 注意：`newValue` 此处和 `oldValue` 是相等的
+  // 因为它们是同一个对象！
+  console.log("watch changed");
+})
+
 </script>
 
 <!-- 上面的script是下面的简化版 -->
@@ -170,6 +231,26 @@ export default {
   /* height: 400px; */
 }
 
+/* .diff-table-left {
+  display: v-bind(leftDisplay);
+}
+
+.diff-table-right {
+  display: v-bind(rightDisplay);
+} */
+
+.oldStrInput {
+  /* display: v-bind(oldInputDisplay); */
+  width: 100%;
+  height: 100%;
+}
+
+.newStrInput {
+  /* display: v-bind(newInputDisplay); */
+  width: 100%;
+  height: 100%;
+}
+
 .diff-wrapper {
   position: relative;
   line-height: normal;
@@ -183,7 +264,7 @@ tr {
 }
 
 table {
-  display: table;
+  /* display: table; */
   border-collapse: separate;
   box-sizing: border-box;
   text-indent: initial;
@@ -212,8 +293,8 @@ tbody {
 
 .diff-page {
   display: inline-block;
-  overflow-x: scroll;
-  /* overflow-x: auto; */
+  /* overflow-x: scroll; */
+  overflow-x: auto;
   overflow-y: hidden;
   width: 50%;
 }
@@ -248,7 +329,7 @@ tbody {
 }
 
 .diff-wrapper table {
-  display: table;
+  /* display: table; */
   box-sizing: border-box;
   text-indent: initial;
   border-spacing: 2px;

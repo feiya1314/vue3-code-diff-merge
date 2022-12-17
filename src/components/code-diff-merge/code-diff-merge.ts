@@ -1,9 +1,7 @@
 import { diffLines, Change } from 'diff'
-import { TextLine } from './text-line'
+import { TextLine,EMPTY_LINE } from './text-line'
 import { ContrastLinesPair } from './contrast-lines-pair'
 import { LineStatus } from './line-status-enum'
-
-let EMPTY_LINE = new TextLine(null, false, null, LineStatus.EMPTY);
 
 export function getDiff(oldStr: string, newStr: string): Array<TextLine[]> {
     let changes: Change[] = diffLines(oldStr, newStr);

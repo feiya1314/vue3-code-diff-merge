@@ -12,3 +12,6 @@ export class TextLine {
     }
 }
 
+export const EMPTY_LINE = new TextLine(null, false, null, LineStatus.EMPTY);
+export const EMPTY_NORMAL = new TextLine('', false, null, LineStatus.NORMAL);
+

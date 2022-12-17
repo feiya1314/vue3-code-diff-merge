@@ -41,25 +41,28 @@
     <!-- -----------------------  文本列填充实际值 开始 -------------------------------------------------- -->
     <td v-if="groupLines[index].status == LineStatus.REMOVED" class="line-value line-del">
       <div class="line-value-wapper" :class="position == 'right' ? 'line-value-wapper-right' : 'line-value-wapper-left'">
-        <span class="line-ctn">{{ groupLines[index].value }}</span>
+        <!-- <span @input="valueChanged($event, position, groupIndex, index)" class="line-ctn">{{ groupLines[index].value }}</span> -->
+        <span @change="valueChanged($event, position, groupIndex, index)" class="line-ctn">{{ groupLines[index].value }}</span>
       </div>
     </td>
 
     <td v-if="groupLines[index].status == LineStatus.ADD" class="line-value line-add">
       <div class="line-value-wapper" :class="position == 'right' ? 'line-value-wapper-right' : 'line-value-wapper-left'">
-        <span class="line-ctn">{{ groupLines[index].value }}</span>
+        <!-- <span @input="valueChanged($event, position, groupIndex, index)" class="line-ctn">{{ groupLines[index].value }}</span> -->
+        <span @change="valueChanged($event, position, groupIndex, index)" class="line-ctn">{{ groupLines[index].value }}</span>
       </div>
     </td>
 
-    <td v-if="groupLines[index].status == LineStatus.EMPTY" class="line-value line-empty">
+    <td contenteditable="false" v-if="groupLines[index].status == LineStatus.EMPTY" class="line-value line-empty">
       <div class="line-value-wapper">
-        <span class="line-ctn"><br></span>
+        <span class="line-ctn"></span>
       </div>
     </td>
 
     <td v-if="groupLines[index].status == LineStatus.NORMAL" class="line-value line-normal">
       <div class="line-value-wapper" :class="position == 'right' ? 'line-value-wapper-right' : 'line-value-wapper-left'">
-        <span class="line-ctn">{{ groupLines[index].value }}</span>
+        <!-- <span @input="valueChanged($event, position, groupIndex, index)" class="line-ctn">{{ groupLines[index].value }}</span> -->
+        <span @change="valueChanged($event, position, groupIndex, index)" class="line-ctn">{{ groupLines[index].value }}</span>
       </div>
     </td>
     <!-- -------------------- 文本列处理 结束------------------------>
@@ -110,16 +113,30 @@ const props = defineProps({
   numTdOffset: {
     type: Number,
     required: true
+  },
+  editable: {
+    type: Boolean,
+    required: true
   }
 });
 
 // 或者使用toRefs，否则将失去响应式
-const { groupLines, groupSize, groupIndex, position, numTdOffset } = toRefs(props);
+const { groupLines, groupSize, groupIndex, position, numTdOffset, editable } = toRefs(props);
 const numOffsetPx = numTdOffset.value + "px"
 
+const groupLinesInner = groupLines;
 // 注册父组件监听的事件
-const emit = defineEmits(['merge-lines']);
+const emit = defineEmits(['merge-lines', 'value-change']);
 
+function valueChanged(e: Event, pos: string, pairIndex: number, lineIndex: number) {
+  if (editable.value != true) {
+    console.log("not editable");
+  }
+  // let changedValue: string  = e.currentTarget;
+  let changedValue: string = '';
+  console.log("vlaue cahnaged")
+  emit('value-change', pos, changedValue, pairIndex, lineIndex)
+}
 console.log("offseepx" + numOffsetPx)
 console.log("numTdOffset " + numTdOffset.value)
 // Vue3，什么情况下数据会丢失响应式呢？ https://blog.csdn.net/weixin_46683645/article/details/125977313
@@ -208,6 +225,8 @@ export default defineComponent({
   text-overflow: ellipsis;
   /* height: 20px; */
   position: absolute;
+  height: -webkit-fill-available;
+  margin-bottom: 0.5em;
 }
 
 .line-num-right {
